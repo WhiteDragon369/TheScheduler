@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>The Scheduler</title>
+        <style>
+            body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+		    background-image: url('https://img.freepik.com/free-vector/network-mesh-wire-digital-technology-background_1017-27428.jpg?size=626&ext=jpg&ga=GA1.1.3418694.1698556647&semt=ais');
+			background-size: cover;
+			background-repeat: no-repeat;
+			
+           
+            }
+			header {
+            background-color: #003366;
+            color: white;
+            padding: 30px;
+            text-align: right;
+			 margin-left: 0vh;
+			
+        }
+            * {
+                font-family: 'Roboto', sans-serif;
+            }
+            p, li {
+                font-size: 18px;
+            }
+            .container {
+                display: flex;
+                gap: 15px;
+            }
+            .dropzone, .days {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 34px;
+                border: 2px solid #1576C1;
+                background-color: #94DBFD;
+                border-radius: 10px;
+                transition: transform 0.5s;
+            }
+            .dropzone.dragover {
+                transform: scale(0.9);
+            }
+
+            .box, .days {
+                width: 200px;
+                height: 100px;
+                cursor: pointer;
+                user-select: none;
+            }
+            .box[data-item="MAI101"] {
+                background-color: #FFDCA9;
+                border-color: #F97D02;
+            }
+            .box[data-item="PHI101"] {
+                background-color: #BCF8B9;
+                border-color: #3CB43C;
+            }
+            .box[data-item="CYC101"],.box[data-item="CMC101"] {
+                background-color: #fff534;
+                border-color: #c6bc0b;
+            }
+            .days {
+                background-color: #ff6f6f;
+                border-color: #c60b0b;
+                cursor: default;
+            }
+			.profile-section {
+           position: absolute;
+		   top: 10px;
+		   left: 15px;
+        }
+
+        .notifications {
+           position: absolute;
+		   top: 15px;
+		   right: 15px;
+        }
+
+        .notifications-popup {
+            display: none;
+            position: absolute;
+            background-color: #fff;
+            box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            right: 0;
+            top: 40px;
+        }
+
+        .notifications-popup p {
+            padding: 10px;
+            margin: 0;
+        }
+
+        .dropdown:hover .notifications-popup {
+            display: block;
+        }
+	
+            
+        </style>
+    </head>
+
+
+    <body>
+	{% if user.is_authenticated %}
+		<header>
+        <div class="profile-section">
+            <a href="{% url 'logout' %}"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRp3AjSb8bELRSqlkteAj2jJ1rURRK54ethXFSZTPsLWQ&s"width = "40" height= "30"></a>
+        </div>
+        <div class="dropdown notifications">
+            <img src ="https://w7.pngwing.com/pngs/537/580/png-transparent-bell-notification-communication-information-icon.png" width = "30" height= "30">
+            <div class="notifications-popup">
+                <p>Recent Message 1</p>
+                <p>Recent Message 2</p>
+                <p>Recent Message 3</p>
+			</div>
+        </div>
+    </header>
+        <br>
+        <div class="container">
+            <div class="days" data-item="A">MON</div>
+            <div class="days" data-item="B">TUE</div>
+            <div class="days" data-item="C">WED</div>
+            <div class="days" data-item="B">THU</div>
+            <div class="days" data-item="C">FRI</div>
+        </div>
+        <br>
+        {% if records %}
+            {% for record in records %}
+                <div class="container">
+                    <div draggable="true" day="mon" sno="{{record.sno}}" class="dropzone box" data-item="{{record.mon|slice:'0:6'}}">{{record.mon}}</div>
+                    <div draggable="true" day="tue" sno="{{record.sno}}" class="dropzone box" data-item="{{record.tue|slice:'0:6'}}">{{record.tue}}</div>
+                    <div draggable="true" day="wed" sno="{{record.sno}}" class="dropzone box" data-item="{{record.wed|slice:'0:6'}}">{{record.wed}}</div>
+                    <div draggable="true" day="thu" sno="{{record.sno}}" class="dropzone box" data-item="{{record.thu|slice:'0:6'}}">{{record.thu}}</div>
+                    <div draggable="true" day="fri" sno="{{record.sno}}" class="dropzone box" data-item="{{record.fri|slice:'0:6'}}">{{record.fri}}</div>
+                </div>
+                <br>
+            {% endfor %}
+        {% endif %}
+    </body>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+
+        var draggedElement = null;
+        var items;
+
+        function handleDragStart(e) {
+            this.style.opacity = "0.4";
+            draggedElement = this;
+
+            e.dataTransfer.effectAllowed = "move";
+            e.dataTransfer.setData("item", this.innerHTML);
+        }
+
+        function handleDragOver(e) {
+            if (e.preventDefault) 
+                e.preventDefault();
+
+            e.dataTransfer.dropEffect = "move";
+            return false;
+        }
+
+        function handleDragEnter(e) {
+            this.classList.add("dragover");
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove("dragover");
+        }
+
+        function handleDrop(e) {
+            var information = { "from_day": draggedElement.getAttribute('day'), "from_sno": draggedElement.getAttribute('sno'), "to_day": this.getAttribute('day'), "to_sno": this.getAttribute('sno'), csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()}
+            console.log(information);
+
+            $.ajax({
+                type:'GET',
+                url:'http://127.0.0.1:8000/website/update/',
+                data:information,
+                success: function() {
+                    console.log(information)
+                }
+
+            })
+
+ 
+
+            if (e.stopPropagation)
+                e.stopPropagation();
+
+            if (draggedElement != this) {
+                let attri = draggedElement.getAttribute('data-item')
+                draggedElement.innerHTML = this.innerHTML;
+                draggedElement.setAttribute("data-item", this.getAttribute('data-item'));
+
+                let replacedItem = e.dataTransfer.getData("item");
+                this.innerHTML = replacedItem;
+                this.setAttribute("data-item", attri);
+            }
+
+            return false;
+        }
+
+        function handleDragEnd(e) {
+            this.style.opacity = "1";
+
+            items.forEach(function(item) {
+                item.classList.remove("dragover");
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", event => {
+            items = document.querySelectorAll(".container .box");
+
+            items.forEach(function(item) {
+            item.addEventListener("dragstart", handleDragStart);
+            item.addEventListener("dragenter", handleDragEnter);
+            item.addEventListener("dragover", handleDragOver);
+            item.addEventListener("dragleave", handleDragLeave);
+            item.addEventListener("drop", handleDrop);
+            item.addEventListener("dragend", handleDragEnd);
+            });
+        });
+
+    </script>
+    {% else %}
+        <h1>You are not logged in</h1>
+    </body>
+    {% endif %}
+</html>
+        
+        

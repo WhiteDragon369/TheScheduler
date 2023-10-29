@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IIT Roorkee Login</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+			background-image: url('https://t3.ftcdn.net/jpg/03/55/60/70/360_F_355607062_zYMS8jaz4SfoykpWz5oViRVKL32IabTP.jpg');
+		    background-size: cover;
+			background-repeat: no-repeat;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #333;
+        }
+
+        .input-container {
+            margin-top: 20px;
+        }
+
+        .input-container input {
+            width: 80%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .input-container label {
+            font-weight: bold;
+        }
+
+        .btn-container {
+            margin-top: 20px;
+        }
+
+        .btn {
+            background: #3498db;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    {% if messages %}
+        <script>alert("Login unsuccessful")</script>
+        {% for message in messages %}
+        {% endfor %}
+    {% endif %}
+
+    {% if user.is_authenticated %}
+
+    {% else %}
+    <form action="{% url 'home' %}" method="post">
+        {% csrf_token %}
+        <div class="login-container">
+            <h1>IIT Roorkee Login</h1>
+            <div class="input-container">
+                <label for="application-number">Username:</label>
+                <input type="text" name="username" id="username" placeholder="Your Username">
+            </div>
+            <div class="input-container">
+                <label for="password">Password:</label>
+                <input type="password" name="password" id="password" placeholder="Your password">
+            </div>
+            <div class="btn-container">
+                <a href = "timetable.html">
+                    <button type='submit' class="btn">Login</button>
+                </a>
+            </div>
+        </div>
+    </form>
+    {% endif %}
+</body>
+</html>
